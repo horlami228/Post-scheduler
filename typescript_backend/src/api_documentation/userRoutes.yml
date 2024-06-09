@@ -1,0 +1,98 @@
+
+/api/v1/user/create:
+  post:
+    summary: Create a new user
+    description: Registers a new user in the system
+    tags:
+      - Users
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userName:
+                type: string
+              email:
+                type: string
+            example:
+              userName: "Bruce"
+              email: "brucewayne@example.com"
+    responses:
+      200:
+        description: User created successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                userName:
+                  type: string
+                email:
+                  type: string
+                createdAt:
+                  type: string
+                updatedAt:
+                  type: string
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/v1/user/get_users:
+  get:
+    summary: Retrieve all users
+    description: Retrieves a list of all users
+    tags:
+      - Users
+    responses:
+      200:
+        description: Successfull all users returned
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  userName:
+                    type: string
+                  email:
+                    type: string
+      500:
+        description: Internal server error
+
+
+/api/v1/user/get_user/{userName}:
+  get:
+    summary: Get a user by userName
+    parameters:
+      - in: path
+        name: userName
+        required: true
+        description: Username of the user to retrieve
+    tags:
+      - Users
+    responses:
+      200:
+        description: Successful user returned
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  userName:
+                    type: string
+                  email:
+                    type: string
+
+      404:
+        description: User Not Found
+      500:
+        description: Internal server error
+
