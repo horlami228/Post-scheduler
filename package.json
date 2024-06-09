@@ -1,24 +1,24 @@
 {
-  "name": "backend_veenote",
+  "name": "sheduler",
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",
   "type": "module",
   "scripts": {
     "build": "rimraf dist && npx tsc",
-    "prestart": "npm run build",
-    "start": "node dist/server.js",
-    "predevStart": "npm run build",
-    "devStart": "concurrently \"npx tsc -w \"  \"nodemon --inspect dist/server.js\""
+    "dev": "dotenv -e .env.development -- prisma generate && cross-env NODE_ENV='development' nodemon ./dist/server.js",
+    "start": "dotenv -e .env.production -- prisma generate && cross-env NODE_ENV='production' node ./dist/server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.15.0",
     "concurrently": "^8.2.2",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-ejs-layouts": "^2.5.1",
     "mongoose": "^8.1.1",
+    "prisma": "^5.15.0",
     "rimraf": "^5.0.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0"
