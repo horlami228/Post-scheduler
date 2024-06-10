@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ES2020",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
   },
-  "include": ["src/**/*.ts", "global.d.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

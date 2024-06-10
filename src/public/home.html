@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Upload</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Upload Media</h1>
+    <form action="/upload/media" method="post" enctype="multipart/form-data">
+      <label for="media" class="file-label">Choose File</label>
+      <input type="file" name="media" id="media">
+      <textarea name="description" id="description" placeholder="Enter description"></textarea>
+      <button type="submit">Upload</button>
+    </form>
+    <div id="message"></div>
+  </div>
+</body>
+</html>
