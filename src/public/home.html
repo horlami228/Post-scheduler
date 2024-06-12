@@ -9,13 +9,15 @@
 <body>
   <div class="container">
     <h1>Upload Media</h1>
-    <form action="/upload/media" method="post" enctype="multipart/form-data">
+    <form action="/api/drive/upload" method="post" enctype="multipart/form-data">
       <label for="media" class="file-label">Choose File</label>
       <input type="file" name="media" id="media">
       <textarea name="description" id="description" placeholder="Enter description"></textarea>
       <button type="submit">Upload</button>
     </form>
     <div id="message"></div>
+    <div id="file-count">No file selected</div>
   </div>
+  <script src="script.js"></script>
 </body>
 </html>
