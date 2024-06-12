@@ -23,8 +23,11 @@ model User {
 }
 
 model Post {
-   id  String   @id @default(auto()) @map("_id") @db.ObjectId
-  imageUrl String
+  id  String   @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  webViewLink String
+  webContentLink String
+  fileId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

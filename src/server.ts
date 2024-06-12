@@ -1,10 +1,12 @@
 // Import required modules and components
 import express from 'express';
 import userRoutes from "./routes/userRoutes.js";
+import googleRoutes from './routes/googleDriveRoutes.js'
 import swaggerSpec from './swaggerConfig.js';
 import swaggerUi from 'swagger-ui-express';
 import prisma from './config/prismaClient.js';
 import errorHandlingMiddleware from './middleware/errorHandling.js';
+import { Request, Response, NextFunction } from 'express';
 import {config} from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -51,8 +53,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Route configuration
+
 // All API routes are prefixed with '/api/v1'
-app.use('/api/v1', userRoutes);
+app.use('/api', userRoutes);
+
+// google drive routes
+app.use('/api', googleRoutes);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -65,7 +71,7 @@ app.get('/home', (req, res) => {
 
 
 // A custom 404 'not found' middleware
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
     res.status(404).send("404 Page Not Found");
     next();
 });
@@ -73,6 +79,10 @@ app.use((req, res, next) => {
 // error handling middleware
 app.use(errorHandlingMiddleware);
 
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
+});
 
 // Start the server
 console.log(`The environment is ${process.env.NODE_ENV}`)
