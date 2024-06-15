@@ -8,13 +8,13 @@ import { CustomRequest } from '../types/customeRequest';
 import prisma from '../config/prismaClient.js';
 import { Readable } from 'stream';
 import { OAuth2Client } from 'google-auth-library';
-import dotevn from 'dotenv';
+import dotenv from 'dotenv';
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 
 const envPath = path.resolve('.env.development')
 
-dotevn.config({path: envPath})
+dotenv.config({path: envPath})
 
 console.log(path.resolve('.env.development'));
 

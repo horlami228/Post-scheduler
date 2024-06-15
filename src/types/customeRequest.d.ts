@@ -6,4 +6,9 @@ export interface CustomRequest extends Request {
     oAuth2?: OAuth2Client;
   };
 
+  linkedin?: {
+    accessToken?: string;
+    userId?: string;
+  };
+
 }
