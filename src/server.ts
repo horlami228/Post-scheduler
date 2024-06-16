@@ -1,7 +1,8 @@
 // Import required modules and components
 import express from 'express';
 import userRoutes from "./routes/userRoutes.js";
-import googleRoutes from './routes/googleDriveRoutes.js'
+import googleRoutes from './routes/googleDriveRoutes.js';
+import linkedRoutes from './routes/linkedinRoutes.js';
 import swaggerSpec from './swaggerConfig.js';
 import swaggerUi from 'swagger-ui-express';
 import prisma from './config/prismaClient.js';
@@ -59,6 +60,9 @@ app.use('/api', userRoutes);
 
 // google drive routes
 app.use('/api', googleRoutes);
+
+// linkedin routes
+app.use('/api', linkedRoutes);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
