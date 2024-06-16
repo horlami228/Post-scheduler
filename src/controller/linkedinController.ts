@@ -1,5 +1,6 @@
 // linkedin api
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import path from 'path';
@@ -12,6 +13,20 @@ import { CustomRequest } from '../types/customeRequest';
 
 
 const envPath = path.resolve('.env.development')
+
+// Configure axios to retry requests
+// Configure axios to retry requests
+axiosRetry(axios, {
+        retries: 10, // Number of retry attempts
+        retryDelay: (retryCount) => {
+            console.log(`Retry attempt: ${retryCount}`);
+            return retryCount * 1000; // Exponential back-off (1000ms = 1 second)
+        },
+        retryCondition: (error) => {
+            // Retry on network errors or 5xx status codes
+            return axiosRetry.isNetworkOrIdempotentRequestError(error) || (error?.response?.status ?? 0) >= 500;
+        }
+    });
 
 dotenv.config({path: envPath})
 const CLIENT_ID = process.env.LINKEDIN_CLIENT_ID || "";
@@ -81,20 +96,6 @@ export const profile = async (req: CustomRequest, res: Response, next: NextFunct
     } catch (error: any) {
         console.error('Error fetching LinkedIn user profile:', error.message || error);
 
-        // // Add detailed logging of the error object
-        // if (error.response) {
-        //     // The request was made and the server responded with a status code
-        //     // that falls out of the range of 2xx
-        //     console.error('Status:', error.response.status);
-        //     console.error('Headers:', error.response.headers);
-        //     console.error('Data:', error.response.data);
-        // } else if (error.request) {
-        //     // The request was made but no response was received
-        //     console.error('Request:', error.request);
-        // } else {
-        //     // Something happened in setting up the request that triggered an Error
-        //     console.error('Error Message:', error.message);
-        // }
         next(error);
     }
 };
@@ -106,14 +107,12 @@ export const makePost = async (req: CustomRequest, res: Response, next: NextFunc
         return res.status(400).json({error: 'text is required'});
     }
 
-    const access_token = req.linkedin?.accessToken;
-    const userId = req.linkedin?.userId;
+    const access_token = req.linkedin?.accessToken; // access token
+    const userId = req.linkedin?.userId;    //sub id
 
-    console.log('acc', access_token, 'userid', userId, 'text', text);
 
     try {
-
-        const response = await axios.post('https://api.linkedin.com/v2/ugcPosts', {
+        const postData = {
             "author": `urn:li:person:${userId}`,
             "lifecycleState": "PUBLISHED",
             "specificContent": {
@@ -127,18 +126,31 @@ export const makePost = async (req: CustomRequest, res: Response, next: NextFunc
             "visibility": {
                 "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
             }
-        }, {
+        }
+        const response = await axios.post('https://api.linkedin.com/v2/ugcPosts', postData, {
             headers: {
                 Authorization: `Bearer ${access_token}`,
                 // "Content-Type": 'application/json'
-            }
+            },
         });
 
         res.status(200).json(response.data);
 
     } catch(error: any) {
 
-        console.log(error.msg);
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Error creating post:', error.response.data);
+            console.error('Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+          } else if (error.request) {
+            // The request was made but no response was received
+            console.error('Error creating post, no response received:', error.request);
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error creating post:', error.message);
+          }
         next(error);
     }
 }
