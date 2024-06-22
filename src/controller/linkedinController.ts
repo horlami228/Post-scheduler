@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import queryString from "querystring";
 import appendToFile from "../utilities/appendFile.js";
 import { CustomRequest } from "../types/customeRequest";
+import getImage from "../utilities/getImageBuffer.js";
 
 const envPath = path.resolve(".env.development");
 
@@ -157,7 +158,7 @@ export const makePost = async (
       {
         headers: {
           Authorization: `Bearer ${access_token}`,
-          // "Content-Type": 'application/json'
+          "Content-Type": "application/json",
         },
       },
     );
@@ -218,6 +219,11 @@ const uploadImage = async (ACCESS_TOKEN: string, personId: string) => {
   try {
     // Check if the file exists
     // TODO: get image from google drive link
+    const webContentLink =
+      "https://drive.google.com/uc?id=1adH6UFxy3sKfGZbWZsTfjy69vnrHOn20&export=download";
+    // download image
+    const imageBuffer = await getImage(webContentLink);
+    console.log("imageContent", imageBuffer);
 
     const registrationData = await registerImage(ACCESS_TOKEN, personId);
     console.log("Registration data:", registrationData);
@@ -230,8 +236,8 @@ const uploadImage = async (ACCESS_TOKEN: string, personId: string) => {
 
     console.log("Upload URL:", uploadUrl);
 
-    const imageData = fs.readFileSync(imagePath);
-    await axios.put(uploadUrl, imageData, {
+    // const imageData = fs.readFileSync(imagePath);
+    await axios.put(uploadUrl, imageBuffer, {
       headers: {
         Authorization: `Bearer ${ACCESS_TOKEN}`,
         "Content-Type": "image/png",
@@ -243,5 +249,64 @@ const uploadImage = async (ACCESS_TOKEN: string, personId: string) => {
   } catch (error) {
     console.error("Error uploading image:", error);
     throw error;
+  }
+};
+
+export const makeImagePost = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  const text = req.body?.text;
+
+  const access_token: string = req.linkedin?.accessToken as string; // access token
+  const userId: string = req.linkedin?.userId as string; //sub id
+  if (!text) {
+    return res.status(400).send("Text is required");
+  }
+
+  try {
+    // upload image content to linkedin for assetId
+    const assetId = await uploadImage(access_token, userId);
+
+    const response = await axios.post(
+      "https://api.linkedin.com/v2/ugcPosts",
+      {
+        author: `urn:li:person:${userId}`,
+        lifecycleState: "PUBLISHED",
+        specificContent: {
+          "com.linkedin.ugc.ShareContent": {
+            shareCommentary: {
+              text: text,
+            },
+            shareMediaCategory: "IMAGE",
+            media: [
+              {
+                status: "READY",
+                description: {
+                  text: "Sample Description",
+                },
+                media: `urn:li:digitalmediaAsset:${assetId}`, // media assetId
+              },
+            ],
+          },
+        },
+        visibility: {
+          "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    return res.json(response.data);
+  } catch (error: any) {
+    console.error("Error posting to LinkedIn:", error);
+
+    next(error);
   }
 };
