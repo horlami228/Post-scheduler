@@ -5,3 +5,7 @@ dist
 .env*
 
 tokens.json
+
+twitter.json
+
+linkedin.json

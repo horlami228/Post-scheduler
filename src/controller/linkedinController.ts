@@ -79,7 +79,7 @@ export const linkedinCallBack = async (
     );
 
     // save the access token in a file for later use
-    fs.writeFileSync("linkedin.json", JSON.stringify(response?.data));
+    fs.writeFileSync("linkedin.json", JSON.stringify(response?.data, null, 2));
 
     console.log("Tokens saved to linkedin.json", response?.data);
 
@@ -215,12 +215,11 @@ const registerImage = async (ACCESS_TOKEN: string, personId: string) => {
   }
 };
 
-const uploadImage = async (ACCESS_TOKEN: string, personId: string) => {
+const uploadImage = async (ACCESS_TOKEN: string, personId: string, webContentLink: string) => {
   try {
     // Check if the file exists
-    // TODO: get image from google drive link
-    const webContentLink =
-      "https://drive.google.com/uc?id=1adH6UFxy3sKfGZbWZsTfjy69vnrHOn20&export=download";
+    // const webContentLink =
+    //   "https://drive.google.com/uc?id=1adH6UFxy3sKfGZbWZsTfjy69vnrHOn20&export=download";
     // download image
     const imageBuffer = await getImage(webContentLink);
     console.log("imageContent", imageBuffer);
@@ -252,22 +251,25 @@ const uploadImage = async (ACCESS_TOKEN: string, personId: string) => {
   }
 };
 
+// Make a post with an image
 export const makeImagePost = async (
   req: CustomRequest,
   res: Response,
   next: NextFunction,
 ) => {
   const text = req.body?.text;
+  const webContentLink = req.body?.webContentLink;
 
   const access_token: string = req.linkedin?.accessToken as string; // access token
   const userId: string = req.linkedin?.userId as string; //sub id
+  
   if (!text) {
     return res.status(400).send("Text is required");
   }
 
   try {
     // upload image content to linkedin for assetId
-    const assetId = await uploadImage(access_token, userId);
+    const assetId = await uploadImage(access_token, userId, webContentLink);
 
     const response = await axios.post(
       "https://api.linkedin.com/v2/ugcPosts",
@@ -303,7 +305,7 @@ export const makeImagePost = async (
       },
     );
 
-    return res.json(response.data);
+    return res.json({success: true, message: "Post on linkedin made succesfully", details: response.data});
   } catch (error: any) {
     console.error("Error posting to LinkedIn:", error);
 

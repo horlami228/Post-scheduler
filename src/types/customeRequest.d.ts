@@ -1,5 +1,5 @@
-import { Request } from 'express';
-import { OAuth2Client } from 'google-auth-library';
+import { Request } from "express";
+import { OAuth2Client } from "google-auth-library";
 
 export interface CustomRequest extends Request {
   drive?: {
@@ -10,5 +10,8 @@ export interface CustomRequest extends Request {
     accessToken?: string;
     userId?: string;
   };
-
+  twitter?: {
+    client?: any;
+  };
 }
+

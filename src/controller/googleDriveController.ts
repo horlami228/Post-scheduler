@@ -112,7 +112,7 @@ export const googleCallback = async (req: CustomRequest, res: Response, next: Ne
         auth?.setCredentials(data?.tokens);
 
         // Save the tokens to a file for later use
-        fs.writeFileSync('tokens.json', JSON.stringify(data?.tokens));
+        fs.writeFileSync('tokens.json', JSON.stringify(data?.tokens, null, 2));
 
         console.log('Tokens saved to tokens.json');
         res.send('Authentication successful! You can close this window.');
