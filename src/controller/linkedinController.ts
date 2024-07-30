@@ -32,9 +32,10 @@ axiosRetry(axios, {
 });
 
 dotenv.config({ path: envPath });
+
 const CLIENT_ID = process.env.LINKEDIN_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET || "";
-const REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI || "";
+const REDIRECT_URI = `${process.env.LINKEDIN_REDIRECT_URI}/${'api/auth/linkedin/callback'}` || "";
 const SCOPE = "email%20profile%20w_member_social%20openid";
 const STATE = random.generate();
 
@@ -83,7 +84,7 @@ export const linkedinCallBack = async (
 
     console.log("Tokens saved to linkedin.json", response?.data);
 
-    res.send("Authentication successful! You can close this window.");
+    res.redirect("/home");
   } catch (error) {
     next(error);
   }

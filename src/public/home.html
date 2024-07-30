@@ -5,11 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Media Upload</title>
     <link rel="stylesheet" href="style.css" />
+    <style>
+      /* Add this style for spinner */
+      .spinner {
+        display: none;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #22a6b3;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .spinner-container {
+        display: flex;
+        align-items: center;
+      }
+
+      .spinner-container .spinner {
+        margin-left: 10px;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
-      <h1>Upload Media</h1>
+    
+    <h2>OAuth Login</h2>
+    <!-- OAuth Login Buttons with Images -->
+    <div class="oauth-buttons">
+      <a href="/api/auth/google" class="oauth-button">
+        <img src="images/google-logo.png" alt="Authenticate with Google" />
+      </a>
+      <a href="/api/auth/linkedin" class="oauth-button">
+        <img src="images/linkedin-logo.png" alt="Authenticate with LinkedIn" />
+      </a>
+      <a href="/api/auth/twitter" class="oauth-button">
+        <img src="images/twitter-logo.png" alt="Authenticate with Twitter" />
+      </a>
+    </div>
+      
+    <h1>Upload Media</h1>
+
+      <!-- File Upload Form -->
       <form
+        id="upload-form"
         action="/api/drive/upload"
         method="post"
         enctype="multipart/form-data"
@@ -21,10 +66,18 @@
           id="description"
           placeholder="Enter description"
         ></textarea>
-        <button type="submit">Upload</button>
+        <div class="spinner-container">
+          <button type="submit">Upload</button>
+          <div class="spinner" id="spinner"></div>
+        </div>
       </form>
       <div id="message"></div>
       <div id="file-count">No file selected</div>
+
+      <!-- Logout Form -->
+      <form id="logout-form" action="/api/auth/logout" method="post">
+        <button type="submit" class="logout-button">Logout</button>
+      </form>
     </div>
     <script src="script.js"></script>
   </body>

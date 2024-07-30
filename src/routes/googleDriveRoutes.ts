@@ -1,4 +1,4 @@
-import { googlAuth, googleCallback, driveUpload, uploadMedia } from "../controller/googleDriveController.js";
+import { googlAuth, googleCallback, driveUpload, uploadMedia, deleteFile } from "../controller/googleDriveController.js";
 import attachment from "../middleware/attachGDriveOAuth.js";
 import loadTokens from "../middleware/gDriveLoadToken.js";
 import { Router } from "express";
@@ -17,4 +17,6 @@ router.post('/drive/upload', attachment, loadTokens, driveUpload);
 //endpoint to upload from local machine
 router.post('/upload/media', uploadMedia);
 
+//endpoint to delete a file from google drive
+router.delete('/drive/delete', attachment, loadTokens, deleteFile);
 export default router;

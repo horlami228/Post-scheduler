@@ -44,14 +44,6 @@ const twitterClient = new TwitterApi({
   clientSecret: CLIENT_SECRET,
 });
 
-// const twitterClient = new TwitterApi({
-//   //   clientId: CLIENT_ID,
-// //   clientSecret: CLIENT_SECRET,
-//   appKey: process.env.TWITTER_API_KEY || "",
-//   appSecret: process.env.TWITTER_API_SECRET_KEY || "",
-//   accessToken: process.env.TWITTER_ACCESS_TOKEN,
-//   accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
-// });
 
 
 
@@ -100,7 +92,7 @@ export const twitterCallback = async (
     console.log("client", twitter);
     // save the client in a file for later use
     fs.writeFileSync("twitter.json", JSON.stringify(twitter, null, 2));
-    res.send("Successfully authenicated with twitter!");
+    res.redirect("/home");
   } catch (error) {
     next(error);
   }

@@ -15,16 +15,17 @@ router.post("/auth/login", async (req, res)  => {
         }
     
         // Check if user exists
-        const user = await prisma.user.findMany({})
-        //     where: {
-        //         username: username,
-        //     },
-        // });
+        const user = await prisma.user.findFirst({
+            where: {
+                username: username,
+                password: password
+            }
+        });
         
-        console.log(user)
-        // if (!user) {
-        //     return res.status(401).json({ error: "Invalid credentials" });
-        // }
+        console.log(user);
+        if (!user) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
     
         // // Check if password is correct
         // const isMatch = password === user.password;
@@ -32,13 +33,26 @@ router.post("/auth/login", async (req, res)  => {
         // if (!isMatch) {
         //     return res.status(401).json({ error: "Invalid credentials" });
         // }
-    
-        res.status(200).json({ message: "Login successful" });
+        
+          // Set session authentication flag
+        (req.session as any).isAuthenticated = true;
+
+        res.redirect("/home");
     
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal server error" });
     }  
+});
+
+router.get("/auth/logout", async (req, res) => {
+    // Clear session
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ error: "Internal server error" });
+        }
+        res.redirect("/");
+    });
 });
 
 export default router;

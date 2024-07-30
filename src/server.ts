@@ -13,6 +13,10 @@ import { Request, Response, NextFunction } from "express";
 import { config } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import session from "express-session";
+import cron from "node-cron";
+import cronJob from "./controller/cronJob.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +47,15 @@ const PORT = process.env.PORT || 8000;
 // Enable express to parse JSON data
 app.use(express.json());
 
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || "",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
+
+
 // frontend
 // // Serve static files from the 'public' directory within 'src'
 app.use(express.static(path.join(__dirname, "public")));
@@ -51,6 +64,12 @@ app.use(express.urlencoded({ extended: true }));
 // Swagger documentation setup
 // '/api-docs' endpoint serves the Swagger UI based on the swaggerSpec configuration
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// cron job to shedule post
+cron.schedule('0 9,15 * * *', () => {
+  console.log('Task executed at 9:00 AM and 3:00 PM');
+  cronJob();
+});
 
 // Route configuration
 
@@ -75,7 +94,11 @@ app.get("/", (req, res) => {
 
 // Example route to serve login.html
 app.get("/home", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "home.html"));
+  if ((req.session as any).isAuthenticated) {
+    res.sendFile(path.join(__dirname, "public", "home.html"));
+  } else {
+    res.redirect('/');
+  }
 });
 
 // A custom 404 'not found' middleware

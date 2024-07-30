@@ -31,17 +31,22 @@ const loadTokens = async (req: CustomRequest, res: Response, next: NextFunction)
             console.log('Access token expired, refreshing token ...');
 
             if (!tokens.refresh_token) {
-                throw new Error('No refresh token is set.');
+                throw new Error('No refresh token is available.');
             }
 
-            const { credentials } =  await oAuth2Client.refreshAccessToken();
+            try {
+                const { credentials } = await oAuth2Client.refreshAccessToken();
 
-            oAuth2Client.setCredentials(credentials);
+                oAuth2Client.setCredentials(credentials);
 
-            // save the new tokens to a file
-            fs.writeFileSync('tokens.json', JSON.stringify(credentials));
-            
-            console.log('Token refreshed and saved in tokens.json');
+                // Save the new tokens to a file
+                fs.writeFileSync('tokens.json', JSON.stringify(credentials));
+                
+                console.log('Token refreshed and saved in tokens.json');
+            } catch (refreshError) {
+                console.error('Error refreshing access token:', refreshError);
+                throw new Error('Failed to refresh access token, please re-authenticate.');
+            }
         }
 
         // req.drive = { oAuth2: oAuth2Client };

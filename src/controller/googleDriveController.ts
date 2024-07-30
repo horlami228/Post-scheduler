@@ -16,7 +16,7 @@ const envPath = path.resolve('.env.development')
 
 dotenv.config({path: envPath})
 
-console.log(path.resolve('.env.development'));
+// console.log(path.resolve('.env.development'));
 
 // // Create an OAuth2 client
 // const oAuth2Client = new google.auth.OAuth2(
@@ -41,8 +41,8 @@ interface gDriveMedia {
     body: Buffer | Readable;
 }
 
-const filePath = path.resolve('1717401116086.jpeg')
-console.log('filepath:', filePath);
+// const filePath = path.resolve('1717401116086.jpeg')
+// console.log('filepath:', filePath);
 
 // memory storage
 const storage = multer.memoryStorage();
@@ -115,7 +115,7 @@ export const googleCallback = async (req: CustomRequest, res: Response, next: Ne
         fs.writeFileSync('tokens.json', JSON.stringify(data?.tokens, null, 2));
 
         console.log('Tokens saved to tokens.json');
-        res.send('Authentication successful! You can close this window.');
+        res.redirect("/home");
     } catch (error) {
         console.error('Error retrieving access token:', error);
         
@@ -199,60 +199,11 @@ export const driveUpload = async (req: CustomRequest, res: Response, next: NextF
                     
                     const description = req.body.description;
                     console.log(`File uploaded successfully with description: ${description}`);
-                    return res.status(201).json({msg: "post created", post: post});
+                    return res.status(201).json({msg: "Upload Successful", post: post});
 
                 }
             }
         });
-
-        // const oAuth2Client = req.drive?.oAuth2;
-        
-
-        // console.log('auth received')
-
-        // const drive = google.drive({version: 'v3', auth: oAuth2Client}) // initiate a new drive instance
-
-        // const folderId: string = process.env.GOOGLE_DRIVE_FOLDER_ID || "";
-
-        // console.log('The folderId is', folderId)
-
-        // const fileMetaData: gDriveMetaData = {
-        //     name: `schedule${Date.now()}.png`,
-        //     parents: [folderId]
-        // };
-
-        // const media: gDriveMedia = {
-        //     mimeType: 'image/jpeg',
-        //     body: fs.createReadStream(filePath)
-        // };
-
-        // console.log('uploading image');
-
-        // // upload the image here
-        // const file = await drive.files.create({
-        //     requestBody: fileMetaData,
-        //     media: media,
-        //     fields: 'id'
-        // });
-
-        // console.log(`File uploaded successfully, ID: ${file?.data?.id}`)
-
-        // // generate a public url
-        // const fileId: any = file?.data?.id;
-
-        // const fileDriveUrl: any = await generatePublicUrl(fileId, oAuth2Client, next)
-
-        // // add to the database
-        // const post = await prisma.post.create({
-        //     data: {
-        //         description: 'something nice',
-        //         webViewLink: fileDriveUrl?.webViewLink,
-        //         webContentLink: fileDriveUrl?.webContentLink,
-        //         fileId: fileId
-        //     }
-        // })
-        
-        // res.status(201).json({msg: "post created", post: post});
 
     }  catch(error) {
         next(error);
@@ -310,6 +261,31 @@ export const uploadMedia = async (req: Request, res: Response, next: NextFunctio
 
 
     } catch(error) {
+        next(error);
+    }
+}
+
+// delete a file from google drive
+export const deleteFile = async (req: CustomRequest, res: Response, next: NextFunction) => {
+    try {
+        const fileId = req.body.fileId;
+        const oAuth2Client = req.drive?.oAuth2;
+
+        if (!fileId) {
+            return res.status(400).send('File ID is required');
+        }
+        
+        const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+
+        await drive.files.delete({
+            fileId: fileId
+        });
+
+        console.log(`File with ID: ${fileId} deleted successfully`);
+
+        res.send(`File with ID: ${fileId} deleted successfully`);
+
+    } catch (error) {
         next(error);
     }
 }

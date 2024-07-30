@@ -15,7 +15,7 @@ const attachment = async (req: CustomRequest, res: Response, next: NextFunction)
         const oAuth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_DRIVE_CLIENT_ID,
         process.env.GOOGLE_DRIVE_CLIENT_SECRET,
-        process.env.GOOGLE_DRIVE_REDIRECT_URI
+        `${process.env.REDIRECT_URI}/${'api/auth/google/callback'}`
 );
         
         if (!req.drive) {

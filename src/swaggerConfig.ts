@@ -23,10 +23,25 @@ const options = {
     definition: {
         openapi: '3.0.2',
         info: {
-            title: 'Veenote API',
+            title: 'Scheduler API',
             version: '1.0.0',
-            description: 'A voice recording note-taking application',
+            description: 'An automation tool for scheduling and managing social media posts. It is integrated with Gemini AI for generative caption for media.',
+            contact: {
+                name: 'Akintola Olamilekan',
+                email: 'akintolaolamilekan51@gmail.com',
+                url: 'portfolio-infiniteglitch.vercel.app'
+            }
         },
+        servers: [
+            {
+                url: 'http://localhost:8000',
+                description: 'Development server'
+            },
+            {
+                url: 'https://scheduler-api.vercel.app',
+                description: 'Production server'
+            }
+        ]
     },
     apis: ['./src/api_documentation/**/*.yml']
 };

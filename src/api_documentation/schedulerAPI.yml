@@ -1,0 +1,425 @@
+
+/api/v1/user/create:
+  post:
+    summary: Create a new user
+    description: Registers a new user in the system
+    tags:
+      - Users
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userName:
+                type: string
+              email:
+                type: string
+            example:
+              username: "Bruce"
+              email: "brucewayne@example.com"
+              password: "password"
+    responses:
+      200:
+        description: User created successfully
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/auth/login:
+  post:
+    summary: Login to the system
+    description: Logs a user into the system
+    tags:
+      - Users
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+            example:
+              username: "Bruce"
+              password: "password"
+    responses:
+      200:
+        description: User logged in successfully
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/auth/logout:
+  post:
+    summary: Logout from the system
+    description: Logs a user out of the system
+    tags:
+      - Users
+    responses:
+      200:
+        description: User logged out successfully
+      500:
+        description: Internal server error
+
+/api/auth/google:
+  post:
+    summary: Login with Google
+    description: Authenticate the user for google drive access
+    tags:
+      - Google
+    responses:
+      200:
+        description: User successfully authenticated
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/auth/google/callback:
+  get:
+    summary: Google callback
+    description: Callback for google authentication
+    tags:
+      - Google
+    responses:
+      200:
+        description: User successfully authenticated
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/drive/upload:
+  post:
+    summary: Upload a file to google drive from the system UI
+    description: Uploads a file to google drive using the user's credentials
+    tags:
+      - Google
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              media:
+                type: buffer
+              description:
+                type: string
+            example:
+              media: <40 50 60 70 80 90 ...>
+              description: "xyz doing something"
+            items:
+              $ref: '#/components/schemas/Post'
+
+    responses:
+      200:
+        description: File uploaded successfully
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Post'
+      400:
+        description: Invalid file data
+      500:
+        description: Internal server error
+          
+/api/drive/delete:
+  post:
+    summary: Delete a file from google drive
+    description: Deletes a file from google drive using the user's credentials
+    tags:
+      - Google
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              fileId:
+                type: string
+            example:
+              fileId: "1"
+    responses:
+      200:
+        description: File deleted successfully
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Post'
+      400:
+        description: Invalid file data
+      500:
+        description: Internal server error
+
+/api/auth/linkedin:
+  post:
+    summary: Login with LinkedIn through the system UI
+    description: Authenticate the user for linkedin access
+    tags:
+      - Linkedin
+    responses:
+      200:
+        description: User successfully authenticated
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/auth/linkedin/callback:
+  get:
+    summary: LinkedIn callback
+    description: Callback for linkedin authentication
+    tags:
+      - Linkedin
+    responses:
+      200:
+        description: User successfully authenticated
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/auth/linkedin/makeImagePost:
+  post:
+    summary: Make a post with an image and text on LinkedIn
+    description: Make a post with an image and text on LinkedIn using the user's credentials
+    tags:
+      - Linkedin
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              mediaUri:
+                type: string
+              text:
+                type: string
+            example:
+              mediauri: "https://www.example.com/image.jpg"
+              text: "xyz doing something"
+            items:
+              $ref: '#/components/schemas/Post'
+    responses:
+      200:
+        description: Post created successfully
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Post'
+      400:
+        description: Invalid post data
+      500:
+        description: Internal server error
+
+/api/auth/twitter:
+  post:
+    summary: Login with Twitter through the system UI
+    description: Authenticate the user for twitter access
+    tags:
+      - Twitter
+    responses:
+      200:
+        description: User successfully authenticated
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/auth/callback/twitter:
+  get:
+    summary: Twitter callback
+    description: Callback for twitter authentication
+    tags:
+      - Twitter
+    responses:
+      200:
+        description: User successfully authenticated
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      400:
+        description: Invalid user data
+      500:
+        description: Internal server error
+
+/api/post/x/image:
+  post:
+    summary: Post an image to Twitter
+    description: Post an image to Twitter using the user's credentials
+    tags:
+      - Twitter
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              mediaUri:
+                type: string
+              text:
+                type: string
+            example:
+              mediauri: "https://www.example.com/image.jpg"
+              text: "xyz doing something"
+            items:
+              $ref: '#/components/schemas/Post'
+    responses:
+      200:
+        description: Post created successfully
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Post'
+      400:
+        description: Invalid post data
+      500:
+        description: Internal server error
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        userName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - userName
+        - email
+        - password
+        - createdAt
+        - updatedAt
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        webViewLink:
+          type: string
+        webContentLink:
+          type: string
+        fileId:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - description
+        - webViewLink
+        - webContentLink
+        - fileId
+        - createdAt
+        - updatedAt
