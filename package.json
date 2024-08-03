@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "rimraf dist && npx tsc && mkdir -p dist/public && cp -r src/public/* dist/public",
+    "predev": "npm run build",
     "dev": "prisma generate && npm-run-all --parallel tsc:watch nodemon",
     "tsc:watch": "tsc --watch",
     "nodemon": "nodemon",
