@@ -1,7 +1,8 @@
 # Post Scheduler
 
 ## Live Link
-### [Post Scheduler](https://github.com/horlami228/Post-scheduler)
+
+### [Post Scheduler](https://post-scheduler-1.onrender.com)
 
 ## Getting Started
 
