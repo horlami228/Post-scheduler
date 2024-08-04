@@ -35,7 +35,7 @@ dotenv.config({ path: envPath });
 
 const CLIENT_ID = process.env.LINKEDIN_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET || "";
-const REDIRECT_URI = `${process.env.LINKEDIN_REDIRECT_URI}/${'api/auth/linkedin/callback'}` || "";
+const REDIRECT_URI = `${process.env.REDIRECT_URI}/${'api/auth/linkedin/callback'}` || "";
 const SCOPE = "email%20profile%20w_member_social%20openid";
 const STATE = random.generate();
 
