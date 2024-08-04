@@ -188,7 +188,7 @@
       500:
         description: Internal server error
 
-/api/auth/linkedin:
+/api/auth/linkedIn:
   post:
     summary: Login with LinkedIn through the system UI
     description: Authenticate the user for linkedin access

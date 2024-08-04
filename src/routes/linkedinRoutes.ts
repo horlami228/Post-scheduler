@@ -13,7 +13,7 @@ import loadTokens from "../middleware/linkedinLoadToken.js";
 const router = Router();
 
 // authentication
-router.get("/auth/linkedin", linkedinAuth);
+router.get("/auth/linkedIn", linkedinAuth);
 
 // linkedin callback
 router.get("/auth/linkedin/callback", linkedinCallBack);
