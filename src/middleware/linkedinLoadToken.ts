@@ -12,6 +12,7 @@ const loadTokens = async (
 
     const tokens = await JSON.parse(fs.readFileSync("linkedin.json", "utf-8"));
     console.log("full token", typeof tokens.access_token);
+    console.log("full token", tokens);
 
     if (!req.linkedin) {
       req.linkedin = {};

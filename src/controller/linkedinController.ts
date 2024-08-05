@@ -11,7 +11,8 @@ import queryString from "querystring";
 import appendToFile from "../utilities/appendFile.js";
 import { CustomRequest } from "../types/customeRequest";
 import getImage from "../utilities/getImageBuffer.js";
-
+import prisma from "../config/prismaClient.js";
+import { ObjectId } from "mongodb";
 const envPath = path.resolve(".env.development");
 
 // Configure axios to retry requests
@@ -80,9 +81,25 @@ export const linkedinCallBack = async (
     );
 
     // save the access token in a file for later use
-    fs.writeFileSync("linkedin.json", JSON.stringify(response?.data, null, 2));
+    fs.writeFileSync("linkedin.json", JSON.stringify(response?.data));
 
     console.log("Tokens saved to linkedin.json", response?.data);
+
+    // get user profile
+    await axios.get(`${process.env.SERVER}/api/auth/linkedin/profile`, {}).then(async (response) => {
+      console.log(response.data);
+
+      // // save token to database under linkedin
+      // await prisma.linkedinToken.upsert({
+      //   where: { id: new ObjectId("64c8e1f2f9f472c4d3e8f3a1").toString() }, // Convert ObjectId to string
+      //   update: { tokenData: response.data },
+      //   create: { id: new ObjectId().toString(), tokenData: response.data },
+      // });
+    }).catch((error) => {
+      console.error(error);
+    });
+    
+
 
     res.redirect("/home");
   } catch (error) {
@@ -111,6 +128,7 @@ export const profile = async (
     );
 
     await appendToFile("linkedin.json", profileResponse.data);
+    console.log("Profile data appended to linkedin.json", profileResponse.data);
 
     res.status(200).json({ me: profileResponse.data });
   } catch (error: any) {

@@ -78,6 +78,7 @@ const cronJob = async () => {
         Additional notes: Highlight the efficiency and versatility of the code if the image uploaded is indeed code.`
 
         console.log("Using AI to generate caption");
+        
         const result: any = await gemini(postWebContentLink, prompt);
 
         // const result = "For LinkedIn: Sometimes simple is best! 💡  For my current project, I didn't need the complexity of a JWT strategy, so I opted for a straightforward username/password session login using Express Session. This efficient approach met my needs perfectly, demonstrating the versatility of Express for various authentication scenarios. For Twitter:  Skip the JWT headache 🤯  Simple username/password session login with Express Session 🙌  Works like a charm for my project!  #ExpressJS #NodeJS #codinglife"

@@ -14,21 +14,35 @@ datasource db {
 }
 
 model User {
-  id  String   @id @default(auto()) @map("_id") @db.ObjectId
-  username String
-  email String @unique
-  password String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Post {
-  id  String   @id @default(auto()) @map("_id") @db.ObjectId
-  description String
-  webViewLink String
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  description    String
+  webViewLink    String
   webContentLink String
-  fileId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  fileId         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
+model LinkedinToken {
+  id        String @id @map("_id") @db.ObjectId // Static ID to enforce one entry
+  tokenData Json // Store the entire object as a JSON field
+}
+
+model GoogleToken {
+  id        String @id @map("_id") @db.ObjectId // Static ID to enforce one entry
+  tokenData Json // Store the entire object as a JSON field
+}
+
+model TwitterToken {
+  id        String @id @map("_id") @db.ObjectId // Static ID to enforce one entry
+  tokenData Json // Store the entire object as a JSON field
+}
