@@ -1,9 +1,5 @@
 # Post Scheduler
 
-## Live Link
-
-### [Post Scheduler](https://post-scheduler-1.onrender.com)
-
 ## Getting Started
 
 ## Description
@@ -99,6 +95,43 @@ To run this project, you will need to add the following environment variables to
 ## Usage
 
 ### create your own account using the API documentation which would be used to login to your Post Scheduler UI
+
+## Timezone Configuration for Cron Job
+
+The Post Scheduler uses a cron job to automate posting at specific times of the day. By default, this is set to run at 12:00 AM and 12:00 PM based on the Africa/Lagos timezone (WAT).
+
+### Customizing the Timezone
+
+If you are deploying this project in a different timezone or wish to change the scheduled times, you will need to update the cron job configuration in the [`server.ts`](path-to-your-file/server.ts) file.
+
+1. **Open the [`server.ts`](path-to-your-file/server.ts) File:**
+
+   Locate the cron job section in the [`server.ts`](path-to-your-file/server.ts) file:
+
+   ```typescript
+   // Cron job to schedule post
+   cron.schedule('0 0,12 * * *', () => {
+     console.log('Task executed at 12:00 AM and 12:00 PM');
+     cronJob();
+   }, {
+     scheduled: true,
+     timezone: "Africa/Lagos"
+   });
+
+## Update the Timezone:
+
+Replace "Africa/Lagos" with your desired timezone. You can find a list of supported timezones here.
+
+For example, to set the timezone to Eastern Standard Time (EST):
+```typescript
+timezone: "America/New_York"
+```
+## Adjust the Cron Schedule (if needed):
+
+If you want to change the scheduled times, modify the cron expression '0 0,12 * * *' accordingly. This expression currently schedules the task to run at 12:00 AM and 12:00 PM.
+
+Cron Expression Format: 'Minute Hour Day_of_Month Month Day_of_Week'
+
 
 
 ## License

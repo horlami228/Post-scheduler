@@ -66,9 +66,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // cron job to shedule post
-cron.schedule('0 9,15 * * *', () => {
-  console.log('Task executed at 9:00 AM and 3:00 PM');
+cron.schedule('0 0,12 * * *', () => {
+  console.log('Task executed at 12:00 AM and 12:00 PM');
   cronJob();
+}, {
+  scheduled: true,
+  timezone: "Africa/Lagos"
 });
 
 // Route configuration
