@@ -92,36 +92,75 @@ const getImage = async (webContentLink: string): Promise<Buffer | null> => {
 
 export const tweetImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const uri = req.body.uri;
+      const uris: string[] = req.body.uris;
       const tweetText = req.body.text;
-
-      if (!uri || !tweetText) {
-        return res.status(400).send('URI and tweet text are required');
+      console.log('step 1')
+      if (!uris || uris.length === 0 ||  !tweetText) {
+        return res.status(400).send('At least one URI and tweet text are required');
       }
 
-      download(uri, async function (err: any, imageBuffer: any) {
-        if (err) {
-          return console.log(err);
+      console.log('step 2')
+      const mediaIds: string[] = [];
+      for (const uri of uris) {
+        const imageBuffer = await downloadImage(uri);
+        if (!imageBuffer) {
+          return res.status(500).send('Failed to download image');
         }
-        try {
-          const mediaId = await twitterClient.v1.uploadMedia(imageBuffer, { type: 'buffer' });
-          await twitterClient.v2.tweet({
-            text: tweetText,
-            media: {
-              media_ids: [mediaId]
-            }
-          });
-          res.status(200).send('Tweeted successfully');
-          console.log("Tweeted successfully");
-        } catch (e) {
-          console.log(e);
+        
+        const mediaId = await twitterClient.v1.uploadMedia(imageBuffer, { type: 'buffer' });
+        console.log('mediaId', mediaId)
+        mediaIds.push(mediaId);
+
+        // Twitter API allows up to 4 media attachments per tweet
+        if (mediaIds.length === 4) break;
+      }
+
+      console.log('step 3')
+      await twitterClient.v2.tweet({
+        text: tweetText,
+        media: {
+          media_ids: mediaIds as [string] | [string, string] | [string, string, string] | [string, string, string, string],
         }
       });
+      // download(uri, async function (err: any, imageBuffer: any) {
+      //   if (err) {
+      //     return console.log(err);
+      //   }
+      //   try {
+      //     const mediaId = await twitterClient.v1.uploadMedia(imageBuffer, { type: 'buffer' });
+      //     await twitterClient.v2.tweet({
+      //       text: tweetText,
+      //       media: {
+      //         media_ids: [mediaId]
+      //       }
+      //     });
+      //     res.status(200).send('Tweeted successfully');
+      //     console.log("Tweeted successfully");
+      //   } catch (e) {
+      //     console.log(e);
+      //   }
+      // });
       
+      console.log('step 4')
+        res.status(200).send('Tweeted successfully');
+        console.log("Tweeted successfully");
       
     } catch (error) {
         next(error);
     }
 }
 
+
+export const downloadImage = (uri: string): Promise<Buffer | null> => {
+  return new Promise((resolve, reject) => {
+    download(uri, (err: any, imageBuffer: Buffer) => {
+      if (err) {
+        console.error('Error downloading image:', err);
+        return resolve(null);
+      }
+      console.log('Image downloaded successfully');
+      resolve(imageBuffer);
+    });
+  });
+};
 
