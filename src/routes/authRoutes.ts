@@ -10,7 +10,6 @@ router.post("/auth/login", async (req, res)  => {
     try {
         const { username, password } = req.body;
 
-        console.log(username, password);
 
         if (!username || !password) {
             return res.status(400).json({ error: "Please provide username and password" });
@@ -50,10 +49,13 @@ router.post("/auth/logout", async (req, res) => {
 });
 
 router.get("/run", async (req, res) => {
-    // Clear session
-    await cronJob();
-
-    res.status(200).json({ message: "Cron job completed" });
+    try {
+        await cronJob();
+        res.status(200).json({ message: "Cron job completed" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 });
 
 export default router;

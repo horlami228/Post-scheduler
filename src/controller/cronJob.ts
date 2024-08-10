@@ -38,24 +38,27 @@ const cronJob = async () => {
         console.log('Cron job started');
         console.log('Fetching post from the database');
         // get the first post from the database
-        const post = await prisma.post.findFirst({
+
+        const postWithImage = await prisma.post.findFirst({
             orderBy: {
-            id: 'asc'
+                id: 'asc'
+            },
+            include: {
+                image: true,
             }
         });
 
-        if (!post) {
+        if (!postWithImage) {
             console.log('No post found in the database');
             return null;
         }
 
-        console.log(post)
+        console.log(postWithImage, "post with image")
 
-        // keep track of the post id
-        const postId = post.id;
-        const postDescription = post.description;
-        const postWebContentLink = post.webContentLink;
-        const postFileId = post.fileId;
+        const webContentLinks = postWithImage.image.map((image) => image.webContentLink);
+        const fileIds = postWithImage.image.map((image) => image.fileId);
+        const postDescription = postWithImage.description;
+        const postId = postWithImage.id;
 
         // get a caption with AI for the post
         // prompt template
@@ -66,7 +69,7 @@ const cronJob = async () => {
 
         so follow this:
         
-        Target audience: Developers and tech enthusiasts.
+        Target audience: Developers and tech enthusiasts and overall brand building.
         Desired tone: Informative and engaging.
         
         Description: ${postDescription}
@@ -79,9 +82,9 @@ const cronJob = async () => {
 
         console.log("Using AI to generate caption");
         
-        // const result: any = await gemini(postWebContentLink, prompt);
+        const result: any = await gemini([webContentLinks[0], webContentLinks[1]], prompt);
 
-        const result = "For LinkedIn: Sometimes simple is best! 💡  For my current project, I didn't need the complexity of a JWT strategy, so I opted for a straightforward username/password session login using Express Session. This efficient approach met my needs perfectly, demonstrating the versatility of Express for various authentication scenarios. For Twitter:  Skip the JWT headache 🤯  Simple username/password session login with Express Session 🙌  Works like a charm for my project!  #ExpressJS #NodeJS #codinglife"
+        // const result = "For LinkedIn: Sometimes simple is best! 💡  For my current project, I didn't need the complexity of a JWT strategy, so I opted for a straightforward username/password session login using Express Session. This efficient approach met my needs perfectly, demonstrating the versatility of Express for various authentication scenarios. For Twitter:  Skip the JWT headache 🤯  Simple username/password session login with Express Session 🙌  Works like a charm for my project!  #ExpressJS #NodeJS #codinglife"
 
         if (!result) {
             
@@ -104,7 +107,7 @@ const cronJob = async () => {
         //make a post to linkedin
         await axios.post(`${SERVER}/api/auth/linkedin/makeImagePost`, {
             text: captions.linkedin,
-            webContentLink: postWebContentLink
+            webContentLinks: webContentLinks,
         }, {
             headers: {
                 'Content-Type': 'application/json'
@@ -123,7 +126,7 @@ const cronJob = async () => {
 
 
         await axios.post(`${SERVER}/api/post/x/image`, {
-            uri: postWebContentLink,
+            uris: webContentLinks,
             text: captions.twitter
         }, {
             headers: {
@@ -139,25 +142,28 @@ const cronJob = async () => {
         console.log('Post made to twitter successfully');
 
         // // delete the post from the database
-        // await prisma.post.delete({
-        //     where: {
-        //         id: postId
-        //     }
-        // });
+        await prisma.post.delete({
+            where: {
+                id: postId
+            }
+        });
 
         console.log('Post deleted from the database successfully');
 
-        // // delete the post from google drive
-        // await axios.delete(`${SERVER}/api/drive/delete`, {
-        //     data: {
-        //         fileId: postFileId
-        //     }
-        // }).then((response) => {
-        //     console.log(response.data);
-        // }).catch((error) => {
-        //     console.error(error);
-        //     process.exit(1); 
-        // })
+        for (const fileId of fileIds) {
+            // // delete the image from google drive
+            await axios.delete(`${SERVER}/api/drive/delete`, {
+                data: {
+                    fileId: fileId
+                }
+            }).then((response) => {
+                console.log(response.data);
+            }).catch((error) => {
+                console.error(error);
+                process.exit(1); 
+            })
+        }
+        
 
         console.log('Post deleted from google drive successfully');
 

@@ -303,7 +303,7 @@ export const makeImagePost = async (
   next: NextFunction,
 ) => {
   const text = req.body?.text;
-  const webContentLink = req.body?.webContentLink;
+  const webContentLinks: string[] = req.body?.webContentLinks as string[]; // webContentLinks
 
   const access_token: string = req.linkedin?.accessToken as string; // access token
   const userId: string = req.linkedin?.userId as string; //sub id
@@ -312,9 +312,29 @@ export const makeImagePost = async (
     return res.status(400).send("Text is required");
   }
 
+  if (!webContentLinks || webContentLinks.length === 0) {
+    return res.status(400).send("At least one webContentLink is required");
+  }
+
   try {
     // upload image content to linkedin for assetId
-    const assetId = await uploadImage(access_token, userId, webContentLink);
+    const assetIds = await Promise.all(
+      webContentLinks.map(async (link) => {
+        return await uploadImage(access_token, userId, link);
+      }),
+    );
+    // const assetId = await uploadImage(access_token, userId, webContentLink);
+
+    // construct the media array for the post
+    const mediaAray = assetIds.map((assetId) => {
+      return {
+        status: "READY",
+        description: {
+          text: "Sample Description",
+        },
+        media: `urn:li:digitalmediaAsset:${assetId}`,
+      };
+    });
 
     const response = await axios.post(
       "https://api.linkedin.com/v2/ugcPosts",
@@ -327,15 +347,7 @@ export const makeImagePost = async (
               text: text,
             },
             shareMediaCategory: "IMAGE",
-            media: [
-              {
-                status: "READY",
-                description: {
-                  text: "Sample Description",
-                },
-                media: `urn:li:digitalmediaAsset:${assetId}`, // media assetId
-              },
-            ],
+            media: mediaAray,
           },
         },
         visibility: {

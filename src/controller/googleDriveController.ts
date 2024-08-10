@@ -62,7 +62,7 @@ function checkFileType(file: CustomFile, cb: FileFilterCallback) {
 
 const upload = multer({
     storage: storage,
-    limits: {fileSize: 1000000},
+    limits: {fileSize: 50000000},
     fileFilter: function (req: Request, file: CustomFile, cb:FileFilterCallback) {
         try {
             checkFileType(file, cb);
@@ -71,10 +71,10 @@ const upload = multer({
             cb(new Error('Invalid file type'));
         }
     }
-}).single('media');
+}).array('media', 4);
 
 export const googlAuth = async (req: CustomRequest, res: Response, next: NextFunction) => {
-    // initialize google Oauth flow
+    // iniialize google Oauth flow
     try {
         const oAuth2Client = req.drive?.oAuth2;
 
@@ -138,16 +138,27 @@ export const driveUpload = async (req: CustomRequest, res: Response, next: NextF
 
         upload(req, res, async (err) => {
             if (err) {
-                res.render('index', {msg: err});
+                // res.render('index', {msg: err});
+                return res.status(500).json({ msg: err.message });
             } else {
-                if (req.file === undefined) {
-                    res.render('index', {msg: 'No file selected'});
+                if (!req.files || req.files.length === 0) {
+                    // res.render('index', {msg: 'No file selected'});
+                    return res.status(400).json({ msg: 'No files selected' });
                 } else {
 
                     const oAuth2Client = req.drive?.oAuth2;
         
                     // Access the uploaded file from req.file
-                    const uploadedFile = req.file;
+                    const uploadedFiles = req.files as Express.Multer.File[];
+
+                                // First, create a new Post entry
+                    const post = await prisma.post.create({
+                        data: {
+                            description: req.body.description,
+                        }
+                    });
+
+                    const images = [];
 
                     console.log('auth received')
             
@@ -156,59 +167,63 @@ export const driveUpload = async (req: CustomRequest, res: Response, next: NextF
                     const folderId: string = process.env.GOOGLE_DRIVE_FOLDER_ID || "";
             
                     console.log('The folderId is', folderId)
-            
-                    const fileMetaData: gDriveMetaData = {
-                        name: `schedule${Date.now()}.png`,
-                        parents: [folderId]
-                    };
                     
-                    console.log('filepath', uploadedFile);
+                    for (const uploadedFile of uploadedFiles) {
+                        const fileMetaData: gDriveMetaData = {
+                            name: `schedule${Date.now()}.png`,
+                            parents: [folderId]
+                        };
 
-                    let bodyContent: Buffer | Readable;
+                        console.log('filepath', uploadedFile);
 
-                    bodyContent = uploadedFile.buffer;
+                        let bodyContent: Buffer | Readable;
 
-                    // make buffer readable
-                    const bodyStream = new Readable();
-                    bodyStream.push(uploadedFile.buffer);
-                    bodyStream.push(null); // Indicates the end of the stream
-                    bodyContent = bodyStream;
+                        bodyContent = uploadedFile.buffer;
 
-                    const media: gDriveMedia = {
-                        mimeType: uploadedFile.mimetype,
-                        body: bodyContent
+                        // make buffer readable
+                        const bodyStream = new Readable();
+                        bodyStream.push(uploadedFile.buffer);
+                        bodyStream.push(null); // Indicates the end of the stream
+                        bodyContent = bodyStream;
+
+                        const media: gDriveMedia = {
+                            mimeType: uploadedFile.mimetype,
+                            body: bodyContent
+                        };
+
+                        console.log('uploading image');
+                        console.log('readable buffer', bodyContent);
+                        
+                        // upload the image here
+                        const file = await drive.files.create({
+                            requestBody: fileMetaData,
+                            media: media,
+                            fields: 'id'
+                        });
+
+                        console.log(`File uploaded successfully, ID: ${file?.data?.id}`)
+
+                        // generate a public url
+                        const fileId: any = file?.data?.id;
+                
+                        const fileDriveUrl: any = await generatePublicUrl(fileId, oAuth2Client, next)
+                
+                        // Create an Image record for each file
+                        const image = await prisma.image.create({
+                            data: {
+                                postId: post.id,
+                                webViewLink: fileDriveUrl?.webViewLink,
+                                webContentLink: fileDriveUrl?.webContentLink,
+                                fileId: fileId
+                            }
+                        });
+
+                        images.push(image);
                     };
-            
-                    console.log('uploading image');
-                    console.log('readable buffer', bodyContent);
 
-                    // upload the image here
-                    const file = await drive.files.create({
-                        requestBody: fileMetaData,
-                        media: media,
-                        fields: 'id'
-                    });
-            
-                    console.log(`File uploaded successfully, ID: ${file?.data?.id}`)
-            
-                    // generate a public url
-                    const fileId: any = file?.data?.id;
-            
-                    const fileDriveUrl: any = await generatePublicUrl(fileId, oAuth2Client, next)
-            
-                    // add to the database
-                    const post = await prisma.post.create({
-                        data: {
-                            description: req.body.description,
-                            webViewLink: fileDriveUrl?.webViewLink,
-                            webContentLink: fileDriveUrl?.webContentLink,
-                            fileId: fileId
-                        }
-                    })
-                    
                     const description = req.body.description;
                     console.log(`File uploaded successfully with description: ${description}`);
-                    return res.status(201).json({msg: "Upload Successful", post: post});
+                    return res.status(201).json({msg: "Upload Successful", posts: {...post, images}});
 
                 }
             }
@@ -286,13 +301,16 @@ export const deleteFile = async (req: CustomRequest, res: Response, next: NextFu
         
         const drive = google.drive({ version: 'v3', auth: oAuth2Client });
 
-        await drive.files.delete({
-            fileId: fileId
+        await drive.files.update({
+            fileId: fileId,
+            requestBody: {
+                trashed: true
+            }
         });
 
-        console.log(`File with ID: ${fileId} deleted successfully`);
+        console.log(`File with ID: ${fileId} moved to trash successfully`);
 
-        res.send(`File with ID: ${fileId} deleted successfully`);
+        res.send(`File with ID: ${fileId} moved to trash successfully`);
 
     } catch (error) {
         next(error);
