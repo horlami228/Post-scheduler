@@ -4,6 +4,7 @@ import { CustomRequest } from "../types/customeRequest";
 import { TwitterApi } from "twitter-api-v2";
 import dotenv from "dotenv";
 import path from "path";
+import prisma from "../config/prismaClient.js";
 
 const envPath = path.resolve(".env.development");
 
@@ -16,7 +17,16 @@ const loadTokens = async (
 ) => {
   try {
   // Read the tokens from the file
-  const tokenData = JSON.parse(fs.readFileSync("twitter.json", "utf-8"));
+  let tokenData: any;
+  const token = await prisma.twitterToken.findFirst({
+    orderBy: {
+    id: 'asc'
+    }
+  });
+
+  tokenData = token?.tokenData;
+  
+  // tokenData = JSON.parse(fs.readFileSync("twitter.json", "utf-8"));
   const { accessToken, refreshToken, expiresIn } = tokenData;
 
   let clientel = new TwitterApi({

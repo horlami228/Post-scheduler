@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import getImage from "../utilities/getImageBuffer.js";
 import { CustomRequest } from "../types/customeRequest.js";
 import { fileTypeFromBuffer } from 'file-type';
+import prisma from "../config/prismaClient.js";
 
 const envPath = path.resolve(".env.development");
 
@@ -92,6 +93,15 @@ export const twitterCallback = async (
     console.log("client", twitter);
     // save the client in a file for later use
     fs.writeFileSync("twitter.json", JSON.stringify(twitter, null, 2));
+    const tokenData = JSON.stringify(twitter, null, 2);
+    // delete the tokens from the database
+    await prisma.twitterToken.deleteMany();
+    await prisma.twitterToken.create({
+      data: {
+        tokenData: tokenData,
+      },
+    });
+
     res.redirect("/home");
   } catch (error) {
     next(error);

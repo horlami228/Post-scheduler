@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { Request, Response, NextFunction } from 'express';
 import { CustomRequest } from '../types/customeRequest';
+import prisma from '../config/prismaClient.js';
 interface Tokens {
     access_token: string;
     scope: string;
@@ -12,7 +13,7 @@ interface Tokens {
 
 const loadTokens = async (req: CustomRequest, res: Response, next: NextFunction) => {
     try {
-
+        let tokens: any;
         const oAuth2Client = req.drive?.oAuth2;
 
         if (!oAuth2Client) {
@@ -20,7 +21,16 @@ const loadTokens = async (req: CustomRequest, res: Response, next: NextFunction)
             return next(error);
         }
 
-        const tokens = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+        const tokenData = await prisma.googleToken.findFirst({
+            orderBy: {
+            id: 'asc'
+            }
+        });
+
+        tokens = tokenData?.tokenData;
+
+        // tokens = JSON.parse(fs.readFileSync('tokens.json', 'utf8'));
+
 
         oAuth2Client.setCredentials(tokens);
 
@@ -50,7 +60,7 @@ const loadTokens = async (req: CustomRequest, res: Response, next: NextFunction)
         }
 
         // req.drive = { oAuth2: oAuth2Client };
-
+        console.log('Tokens loaded successfully');
         next();
      } catch (error) {
         console.error('Error loading or refreshing tokens:', error);

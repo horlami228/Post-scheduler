@@ -2,6 +2,8 @@
 import fs from "fs";
 import { Request, Response, NextFunction } from "express";
 import { CustomRequest } from "../types/customeRequest";
+import prisma from "../config/prismaClient.js";
+
 const loadTokens = async (
   req: CustomRequest,
   res: Response,
@@ -9,9 +11,17 @@ const loadTokens = async (
 ) => {
   try {
     // parse token
+    let tokens: any;
 
-    const tokens = await JSON.parse(fs.readFileSync("linkedin.json", "utf-8"));
-    console.log("full token", typeof tokens.access_token);
+    const tokenData = await prisma.linkedInToken.findFirst({
+      orderBy: {
+      id: 'asc'
+      }
+    });
+
+    tokens = tokenData?.tokenData;
+
+    // tokens = await JSON.parse(fs.readFileSync("linkedin.json", "utf-8"));
     console.log("full token", tokens);
 
     if (!req.linkedin) {

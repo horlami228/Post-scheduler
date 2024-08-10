@@ -32,17 +32,17 @@ model Post {
   updatedAt      DateTime @updatedAt
 }
 
-model LinkedinToken {
-  id        String @id @map("_id") @db.ObjectId // Static ID to enforce one entry
+model LinkedInToken {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
   tokenData Json // Store the entire object as a JSON field
 }
 
 model GoogleToken {
-  id        String @id @map("_id") @db.ObjectId // Static ID to enforce one entry
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
   tokenData Json // Store the entire object as a JSON field
 }
 
 model TwitterToken {
-  id        String @id @map("_id") @db.ObjectId // Static ID to enforce one entry
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
   tokenData Json // Store the entire object as a JSON field
 }

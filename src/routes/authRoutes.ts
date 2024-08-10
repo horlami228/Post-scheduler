@@ -59,7 +59,7 @@ router.post("/auth/logout", async (req, res) => {
 
 router.get("/run", async (req, res) => {
     // Clear session
-    cronJob();
+    await cronJob();
 
     res.status(200).json({ message: "Cron job completed" });
 });
