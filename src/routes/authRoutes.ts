@@ -24,17 +24,9 @@ router.post("/auth/login", async (req, res)  => {
             }
         });
         
-        console.log(user);
         if (!user) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
-    
-        // // Check if password is correct
-        // const isMatch = password === user.password;
-    
-        // if (!isMatch) {
-        //     return res.status(401).json({ error: "Invalid credentials" });
-        // }
         
           // Set session authentication flag
         (req.session as any).isAuthenticated = true;

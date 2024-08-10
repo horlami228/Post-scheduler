@@ -82,6 +82,14 @@ export const linkedinCallBack = async (
     // save the access token in a file for later use
     fs.writeFileSync("linkedin.json", JSON.stringify(response?.data));
 
+    await prisma.linkedInToken.deleteMany({});
+
+    await prisma.linkedInToken.create({
+      data: {
+        tokenData: response?.data, // The new token data
+      },
+    });
+
     console.log("Tokens saved to linkedin.json", response?.data);
 
     // get user profile
