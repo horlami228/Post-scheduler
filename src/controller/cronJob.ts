@@ -74,15 +74,20 @@ const cronJob = async () => {
         
         Description: ${postDescription}
         
-        Now i want something consistent. you startwith For LinkedIn with colon(:) when done start a new line and put for Twitter with colon(:).
-        
-        mix up emojis in your captions to make it more lively and dont forget twiiter word count limit
-        
-        Additional notes: Highlight the efficiency and versatility of the code if the image uploaded is indeed code.`
+        Now, i want something consistent. you startwith For LinkedIn with colon(:) when done start a new line and put for Twitter with colon(:).
+
+        - Include relevant emojis to make the captions more lively.
+        - Ensure the Twitter caption is within the 280 character limit.
+        - Use hashtags to increase visibility.
+        - If the image is code, highlight the efficiency and versatility of the code.
+
+        Additional Notes:The LinkedIn caption should be more in-depth, possibly including a question to encourage interaction. The Twitter caption should be punchy and to the point.`
 
         console.log("Using AI to generate caption");
         
-        const result: any = await gemini([webContentLinks[0], webContentLinks[1]], prompt);
+        const selectedWebContentLinks = webContentLinks.slice(0, 2);
+
+        const result: any = await gemini(selectedWebContentLinks, prompt);
 
         // const result = "For LinkedIn: Sometimes simple is best! 💡  For my current project, I didn't need the complexity of a JWT strategy, so I opted for a straightforward username/password session login using Express Session. This efficient approach met my needs perfectly, demonstrating the versatility of Express for various authentication scenarios. For Twitter:  Skip the JWT headache 🤯  Simple username/password session login with Express Session 🙌  Works like a charm for my project!  #ExpressJS #NodeJS #codinglife"
 
