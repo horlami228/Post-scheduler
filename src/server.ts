@@ -16,7 +16,8 @@ import { fileURLToPath } from "url";
 import session from "express-session";
 import cron from "node-cron";
 import cronJob from "./controller/cronJob.js";
-
+import Parser from "rss-parser";
+import cors from "cors";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +31,11 @@ if (process.env.NODE_ENV === "production") {
 
 // Initialize Express app
 const app = express();
+const parser: any = new Parser();
+
+
+// Enable CORS
+app.use(cors());
 
 // Test database connection
 try {
@@ -101,6 +107,28 @@ app.get("/home", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "home.html"));
   } else {
     res.redirect('/');
+  }
+});
+
+// This route is used to fetch the RSS feed from Medium
+app.get('/fetch-rss', async (req, res) => {
+  const mediumRSSUrl = 'https://medium.com/feed/@akintolaolamilekan51'; // Medium RSS feed URL
+  try {
+    const feed = await parser.parseURL(mediumRSSUrl);
+    
+    const itemsWithImages = feed.items.map((item: any) => {
+      // Try to find the first image URL from the content:encoded field
+      const contentEncoded = item['content:encoded']; // Ensure correct access to the field
+      const imageUrl = contentEncoded?.match(/<figure><img[^>]+src="([^"]+)"[^>]*>/)?.[1];
+      return { 
+        ...item, 
+        imageUrl,
+      };
+    });
+    
+    res.json(itemsWithImages);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch RSS feed' });
   }
 });
 

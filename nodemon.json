@@ -1,6 +1,6 @@
 {
     "watch": ["dist", "src/public"],
     "ext": "js,html,css",
-    "exec": "cross-env NODE_ENV='development' concurrently \"node ./dist/server.js\" \"http-server ./src/public -p 3000\""
+    "exec": "cross-env NODE_ENV='development' concurrently \"node ./dist/server.js\" \"http-server ./src/public -p 5000\""
   }
   
